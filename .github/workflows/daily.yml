@@ -1,9 +1,5 @@
-# Verify saved alert state is restored on the second development run.
 name: Post WARDOGS gold price
 on:
-  push:
-    branches: [dev]
-    paths: ['.github/workflows/daily.yml']
   workflow_dispatch:
   schedule:
     - cron: '17 1 * * *'
