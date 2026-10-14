@@ -17,7 +17,8 @@ To use GitHub Actions, upload the **contents** of this folder to
 https://github.com/FairZ33/wardogs-goldbars at the repository's root, including
 `.github/workflows/daily.yml` and `.gitignore`. In Settings → Secrets and variables
 → Actions, create a repository secret named `DISCORD_WEBHOOK_URL` whose value
-is your development Discord webhook URL. Never put the URL into a tracked file.
+is your production Discord webhook URL. Also create `DISCORD_WEBHOOK_URL_DEV`
+for the development Discord channel. Never put the URL into a tracked file.
 On the default branch, the workflow
 can be run manually and is scheduled daily at 01:17 UTC. The time is provisional
 and allows a buffer after the midnight UTC reset reported by WardogsHub.
@@ -36,3 +37,12 @@ Schedule behavior: https://docs.github.com/en/actions/reference/workflows-and-ac
 
 The earlier Python `gold.py` is retained as a legacy reference. The daily workflow
 runs the Node.js implementation above.
+
+## Development
+
+Work on the `dev` branch. In Actions, open **Post WARDOGS gold price**, click
+**Run workflow**, select `dev` in the branch dropdown, then run it. Development
+runs use only `DISCORD_WEBHOOK_URL_DEV`; a missing dev secret fails instead of
+falling back to production. Manual runs on `main` use `DISCORD_WEBHOOK_URL`.
+Daily scheduled posts run only on `main`. The branch-aware workflow can be
+merged into `main` when ready; changes here do not alter `main` until merged.
