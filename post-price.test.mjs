@@ -33,3 +33,14 @@ test('does not leak the webhook or retry an uncertain send', async () => {
 test('fails on HTTP rejection', async () => {
   await assert.rejects(postPrice(quote, webhook, async () => ({ok:false,status:429})), /HTTP 429/);
 });
+test('uploads the chart as a Discord attachment', async () => {
+  await postPrice(quote, webhook, async (url, options) => {
+    assert.ok(options.body instanceof FormData);
+    const payload = JSON.parse(options.body.get('payload_json'));
+    assert.equal(payload.embeds[0].image.url, 'attachment://history.png');
+    assert.equal(options.body.get('files[0]').name, 'history.png');
+    assert.equal(payload.attachments[0].id, 0);
+    assert.equal(options.headers['Content-Type'], undefined);
+    return {ok:true,json:async()=>({id:'789'})};
+  }, Buffer.from('test chart'));
+});

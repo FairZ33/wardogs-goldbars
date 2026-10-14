@@ -20,8 +20,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Check price parser and Discord posting
-        run: node --test get-price.test.mjs post-price.test.mjs
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.25.0'
+      - name: Install chart dependency
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Check analysis, parser, chart and Discord posting
+        run: pnpm test
       - name: Post current price to development Discord
         if: github.ref == 'refs/heads/dev'
         env:
@@ -32,3 +37,12 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node post-price.mjs
+      - name: Save dated price snapshot and embed preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gold-snapshot-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/
+          retention-days: 90
+          if-no-files-found: warn
+

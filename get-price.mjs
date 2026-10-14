@@ -2,7 +2,7 @@ import { pathToFileURL } from 'node:url';
 
 export const SOURCE_URL = 'https://wardogshub.gg/gold-market/';
 
-export function parsePrice(html, now = new Date()) {
+export function parseHistory(html) {
   const matches = [...html.matchAll(/<script\b[^>]*\bdata-gold-series\b[^>]*>([\s\S]*?)<\/script\s*>/gi)];
   if (matches.length !== 1) throw new Error('Expected one gold price dataset; the source page may have changed.');
   const rows = JSON.parse(matches[0][1]);
@@ -19,12 +19,17 @@ export function parsePrice(html, now = new Date()) {
     }
     dates.add(row.date);
   }
-  const latest = rows.reduce((a, b) => a.date > b.date ? a : b);
+  return rows.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function parsePrice(html, now = new Date()) {
+  const rows = parseHistory(html);
+  const latest = rows.at(-1);
   const today = now.toISOString().slice(0, 10);
   if (latest.date !== today) {
     throw new Error(`Current UTC quote unavailable: latest is ${latest.date}, expected ${today}.`);
   }
-  return { price: latest.rate, quote_date: latest.date, currency: 'in-game cash', source: SOURCE_URL, official: false };
+  return { price: latest.rate, quote_date: latest.date, currency: 'in-game cash', source: SOURCE_URL, official: false, history: rows };
 }
 
 export async function getPrice() {

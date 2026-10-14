@@ -1,0 +1,8 @@
+{
+  "name": "wardogs-goldbars",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": { "test": "node --test", "preview": "node post-price.mjs --dry-run" },
+  "dependencies": { "sharp": "0.34.5" }
+}
