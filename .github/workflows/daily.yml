@@ -1,3 +1,4 @@
+# Verify saved alert state is restored on the second development run.
 name: Post WARDOGS gold price
 on:
   push:
