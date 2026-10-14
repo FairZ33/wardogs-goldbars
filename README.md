@@ -61,3 +61,47 @@ Manual reruns send new messages; no deduplication is implemented.
 
 Source and mechanics: https://wardogshub.gg/gold-market/
 Schedule behavior: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+
+## Price alerts
+
+Each daily report can include an alert when a condition first becomes true:
+- Default: price enters the cheapest quarter of the previous 14 daily quotes.
+- Optional repository variable `GOLD_ALERT_MAX_PRICE`: a whole cash amount, e.g. `250000`.
+- Optional `GOLD_ALERT_ROLE_ID` (production) and `GOLD_ALERT_ROLE_ID_DEV` (development): the ID of an opt-in Discord role. Leave unset for no ping. Configure that role to allow webhook mentions; only this role is allowed, never everyone or users.
+
+Conditions rearm after a confirmed quote no longer meets them. A first run with no saved
+state alerts if already qualifying. A history gap preserves the prior favorable state.
+Changing the price ceiling or economy boundary starts a new alert baseline.
+State is saved only after Discord confirms delivery and restored from the latest
+branch-specific artifact; production and dev never share state. Missing/expired
+state initializes a baseline and can repeat a qualifying alert. Damaged state or
+restore failures stop posting rather than guessing. Artifact retention is 90 days.
+The daily report still posts each run; suppression applies to alert text/role pings.
+These are daily checks, not continuous intraday monitoring. Uncertain network sends
+still require checking the channel before rerunning, since delivery can be ambiguous.
+
+## Free savings planner
+
+`planner/` contains a static, mobile-friendly savings calculator. Players enter their
+cosmetic bar target, bars owned, cash balance and gameplay reserve. It returns
+remaining bars, affordable whole bars toward the goal, cost, shortfall and cash left.
+Presets are reference bar costs; players should verify listings in game or use a
+custom target. Preferences use browser-local storage and aren't sent to our server.
+The daily script builds `output/planner/` with `current-price.json`. Missing or stale
+UTC quotes pause calculations, including when an open tab crosses UTC midnight.
+No game-account integration, login, database, paid server or custom domain is required.
+
+Preview: run `node post-price.mjs --dry-run`, then serve `output/planner/` with any
+static HTTP server. Do not open it directly as a file because it loads a JSON quote.
+
+After the dev implementation is reviewed and merged into main:
+1. In repository Settings → Pages, choose **GitHub Actions** as the source.
+2. In Settings → Secrets and variables → Actions → Variables, set `ENABLE_PLANNER_PAGES` to `true`.
+3. Run the daily workflow on `main`. It deploys the built planner and fresh quote to GitHub Pages.
+4. After confirming the published page, set `PLANNER_URL` to the returned Pages URL (normally `https://fairz33.github.io/wardogs-goldbars/`). The embed then includes a planner link. `PLANNER_URL_DEV` can point to an optional development preview.
+
+With Pages enabled, each daily production run refreshes the planner's quote after
+posting the report. Until today's run publishes, the previous quote is marked stale.
+A successful Discord post followed by a failed Pages deployment can leave the page
+stale; the workflow reports the deployment failure. Pages deployment is gated by
+`ENABLE_PLANNER_PAGES`; it is off by default and dev runs never deploy production.

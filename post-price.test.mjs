@@ -45,3 +45,14 @@ test('uploads the chart as a Discord attachment', async () => {
     return {ok:true,json:async()=>({id:'789'})};
   }, Buffer.from('test chart'));
 });
+test('adds the planner link and permits only the opted-in alert role', async () => {
+  const role='123456789012345678';
+  await postPrice(quote,webhook,async(url,options)=>{
+    const body=JSON.parse(options.body);
+    assert.equal(body.content,`<@&${role}> Gold price alert`);
+    assert.deepEqual(body.allowed_mentions,{parse:[],roles:[role]});
+    assert.ok(body.embeds[0].fields.some(f=>f.value.includes('https://example.com/planner/')));
+    assert.equal(body.embeds[0].fields.at(-1).name,'Source');
+    return {ok:true,json:async()=>({id:'999'})};
+  },null,undefined,{plannerUrl:'https://example.com/planner/',alert:{content:`<@&${role}> Gold price alert`,allowed_mentions:{parse:[],roles:[role]}}});
+});
