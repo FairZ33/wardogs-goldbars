@@ -1,6 +1,18 @@
 import sharp from 'sharp';
 import { cash } from './analyze-history.mjs';
 
+export function niceAxis(low, high) {
+  const padding = Math.max((high - low) * 0.08, high * 0.02, 1);
+  const lower = Math.max(0, low - padding), upper = high + padding;
+  const targetStep = (upper - lower) / 5;
+  const magnitude = 10 ** Math.floor(Math.log10(targetStep));
+  const step = [1, 2, 2.5, 5, 10].map(n => n * magnitude).find(n => n >= targetStep);
+  const min = Math.floor(lower / step) * step;
+  const max = Math.ceil(upper / step) * step;
+  const ticks = Array.from({length: Math.round((max - min) / step) + 1}, (_, i) => min + i * step);
+  return {min, max, step, ticks};
+}
+
 export async function renderChart(analysis) {
   const rows = analysis.chartRows;
   if (!rows.length) throw new Error('No dated quotes available for chart.');
@@ -8,8 +20,7 @@ export async function renderChart(analysis) {
   const first = Date.parse(rows[0].date), last = Date.parse(rows.at(-1).date);
   const rates = rows.map(row => row.rate);
   const low = Math.min(...rates), high = Math.max(...rates);
-  const padding = Math.max((high - low) * 0.12, high * 0.02, 1);
-  const min = Math.max(0, low - padding), max = high + padding;
+  const {min, max, ticks} = niceAxis(low, high);
   const x = row => left + (Date.parse(row.date) - first) / Math.max(last - first, 86400000) * (right - left);
   const y = rate => bottom - (rate - min) / (max - min) * (bottom - top);
   const text = (x, y, value, size = 18, color = '#cbd5e1', anchor = 'start') =>
@@ -17,8 +28,8 @@ export async function renderChart(analysis) {
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="100%" height="100%" fill="#111827"/>`;
   svg += text(left, 34, 'WARDOGS cash per gold bar', 25, '#f8fafc');
   svg += text(right, 34, 'Lower is cheaper', 17, '#94a3b8', 'end');
-  for (let i = 0; i <= 4; i++) {
-    const rate = min + (max - min) * i / 4, yy = y(rate);
+  for (const rate of ticks) {
+    const yy = y(rate);
     svg += `<line x1="${left}" y1="${yy}" x2="${right}" y2="${yy}" stroke="#334155"/>`;
     svg += text(left - 10, yy + 6, cash(rate), 15, '#94a3b8', 'end');
   }
