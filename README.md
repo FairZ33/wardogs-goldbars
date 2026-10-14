@@ -1,57 +1,38 @@
-# 💰 WARDOGS Gold Bar Market Tracker
+# wardogs-goldbars
 
-An automated tool that scrapes live WARDOGS Gold Bar exchange rates and historical statistics from [WardogsHub](https://wardogshub.gg/gold-market/) and posts rich notifications directly to a Discord channel via Webhooks[cite: 1].
+Requires Node.js 24; no packages needed. Fetching prices needs no credentials.
+Discord posting uses the `DISCORD_WEBHOOK_URL` environment variable.
 
----
+Run `node get-price.mjs` from this folder. It fetches WardogsHub's embedded
+`data-gold-series` JSON and prints the current UTC day's cash cost per gold bar.
+It exits with an error if the quote is old, future-dated, missing, or invalid.
+The source is unofficial; freshness does not verify accuracy against the game.
 
-## 🚀 Features
+Run checks with `node --test get-price.test.mjs post-price.test.mjs`.
+Preview the Discord payload with `node post-price.mjs --dry-run`.
+Post with `node post-price.mjs` after supplying the webhook in the environment.
+The script does not load `.env` files automatically.
 
-* **📅 Today's Rate:** Live cash price per gold bar.
-* **⏪ Yesterday's Price:** Dynamically calculated based on daily market shifts[cite: 1].
-* **📈 Highest Ever:** Tracks the all-time peak exchange rate[cite: 1].
-* **📉 Lowest Ever:** Tracks the all-time market bottom[cite: 1].
-* **🤖 Fully Automated:** Runs on a daily cron schedule via GitHub Actions[cite: 1].
-* **💸 100% Free:** Runs entirely on GitHub's free tier with zero server maintenance.
+To use GitHub Actions, upload the **contents** of this folder to
+https://github.com/FairZ33/wardogs-goldbars at the repository's root, including
+`.github/workflows/daily.yml` and `.gitignore`. In Settings → Secrets and variables
+→ Actions, create a repository secret named `DISCORD_WEBHOOK_URL` whose value
+is your development Discord webhook URL. Never put the URL into a tracked file.
+On the default branch, the workflow
+can be run manually and is scheduled daily at 01:17 UTC. The time is provisional
+and allows a buffer after the midnight UTC reset reported by WardogsHub.
+GitHub scheduled runs may be delayed or dropped; public repositories' schedules
+are disabled after 60 days without repository activity.
 
----
+This version sends a price-only embed with the quote date and source in the
+footer. Discord confirms delivery through `wait=true`. Uncertain sends are not
+retried automatically to avoid duplicates; check the channel before rerunning.
+Each manual or daily run sends a new message; no history or duplicate detection
+is stored yet. A change to WardogsHub's page structure can require updating the
+parser. No official Bulkhead gold-price endpoint has been verified.
 
-## 🛠️ Tech Stack
+Source: https://wardogshub.gg/gold-market/
+Schedule behavior: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
 
-* **Language:** Python 3.10+[cite: 1]
-* **Parsing:** BeautifulSoup4[cite: 1]
-* **Network Requests:** Requests[cite: 1]
-* **Automation:** GitHub Actions (YAML)[cite: 1]
-* **Notifications:** Discord Webhooks (Embeds)[cite: 1]
-
----
-
-## 📦 Quick Setup Guide
-
-If you want to set up your own instance of this tracker, follow these steps:
-
-### 1. Fork or Copy the Files
-* Fork this repository to your own GitHub account, or create a new repository containing:
-  * `gold.py` (The main scraping and notification script)
-  * `.github/workflows/daily.yml` (The automation workflow file)
-
-### 2. Add Your Discord Webhook Secret
-1. Go to your repository's **Settings**.
-2. In the left sidebar, click **Secrets and variables** -> **Actions**.
-3. Click **New repository secret**.
-4. Set the **Name** to: `DISCORD_WEBHOOK_URL`
-5. Paste your Discord channel Webhook URL into the **Secret** field and click **Add secret**.
-
-### 3. Enable GitHub Actions
-If you forked the repository, GitHub disables scheduled workflows by default for security:
-1. Go to the **Actions** tab in your repository.
-2. Click the green button to **Enable workflows**.
-
----
-
-## 🔄 Manual Testing & Usage
-
-The script is configured to run automatically every day at midnight UTC (`5 0 * * *`)[cite: 1]. However, you can trigger a manual update at any time:
-
-1. Go to your repository's **Actions** tab.
-2. Select **Post Wardogs Gold Price** in the left sidebar.
-3. Click the **Run workflow** dropdown and click **Run workflow**.
+The earlier Python `gold.py` is retained as a legacy reference. The daily workflow
+runs the Node.js implementation above.

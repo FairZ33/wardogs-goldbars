@@ -1,0 +1,35 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { buildEmbed, postPrice } from './post-price.mjs';
+
+const quote = { price: 281880, quote_date: '2026-10-14', source: 'https://wardogshub.gg/gold-market/' };
+const webhook = 'https://discord.com/api/webhooks/123/fake-token';
+
+test('price embed identifies the currency, date and unofficial source without mentions', () => {
+  const body = buildEmbed(quote);
+  assert.match(body.embeds[0].description, /\$281,880.*in-game cash/);
+  assert.match(body.embeds[0].footer.text, /2026-10-14 UTC.*unofficial/);
+  assert.deepEqual(body.allowed_mentions.parse, []);
+});
+test('requires Discord confirmation and sends the embed', async () => {
+  const id = await postPrice(quote, webhook, async (url, options) => {
+    assert.equal(url.searchParams.get('wait'), 'true');
+    assert.deepEqual(JSON.parse(options.body), buildEmbed(quote));
+    return {ok:true,json:async()=>({id:'456'})};
+  });
+  assert.equal(id, '456');
+});
+test('rejects non-Discord URLs before transmitting', async () => {
+  await assert.rejects(postPrice(quote, 'https://example.com', () => assert.fail('must not send')), /Discord HTTPS/);
+});
+test('does not leak the webhook or retry an uncertain send', async () => {
+  let calls = 0;
+  await assert.rejects(postPrice(quote, webhook, async () => {
+    calls++;
+    throw new Error(webhook);
+  }), error => !error.message.includes('fake-token') && error.message.includes('uncertain'));
+  assert.equal(calls, 1);
+});
+test('fails on HTTP rejection', async () => {
+  await assert.rejects(postPrice(quote, webhook, async () => ({ok:false,status:429})), /HTTP 429/);
+});
