@@ -6,10 +6,13 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: wardogs-gold-price
+  group: wardogs-gold-price-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   price:
+    if: >-
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') &&
+      (github.event_name != 'schedule' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -19,7 +22,13 @@ jobs:
           node-version: '24'
       - name: Check price parser and Discord posting
         run: node --test get-price.test.mjs post-price.test.mjs
-      - name: Post current price to Discord
+      - name: Post current price to development Discord
+        if: github.ref == 'refs/heads/dev'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_DEV }}
+        run: node post-price.mjs
+      - name: Post current price to production Discord
+        if: github.ref == 'refs/heads/main'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node post-price.mjs
