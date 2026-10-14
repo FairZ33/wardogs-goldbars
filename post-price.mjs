@@ -15,7 +15,7 @@ export function buildEmbed(quote, analysis = analyzeHistory(quote), hasChart = f
       description: `**$${quote.price.toLocaleString('en-US')}** in-game cash per gold bar`,
       color: {Favorable: 0x22c55e, Typical: 0xD4AF37, Expensive: 0xef4444}[analysis.label] ?? 0x94a3b8,
       url: quote.source,
-      footer: { text: `Quote: ${quote.quote_date} UTC | WardogsHub (unofficial)` },
+      footer: { text: `Quote: ${quote.quote_date} UTC` },
       fields: [
         {name: 'Since yesterday', value: daily, inline: true},
         {name: 'Previous 14-day median', value: analysis.recent.complete ? `${cash(analysis.recent.median)}\nToday: ${percent(analysis.recent.medianDifference)} vs median` : 'Unavailable', inline: true},
@@ -23,6 +23,7 @@ export function buildEmbed(quote, analysis = analyzeHistory(quote), hasChart = f
         {name: 'Previous 30-day range', value: analysis.month.complete ? `${cash(analysis.month.min)} – ${cash(analysis.month.max)}` : 'Unavailable', inline: true},
         {name: `Exchange assessment: ${analysis.label}`, value: analysis.explanation, inline: false},
         {name: 'Before exchanging', value: 'Keep cash for gameplay and consider your cosmetic deadline. Exchanges are one-way and non-refundable.', inline: false},
+        {name: 'Source', value: `[WardogsHub (unofficial)](${quote.source})`, inline: false},
       ],
       ...(hasChart ? {image: {url: 'attachment://history.png'}} : {}),
     }],

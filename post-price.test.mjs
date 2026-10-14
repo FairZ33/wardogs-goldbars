@@ -8,7 +8,8 @@ const webhook = 'https://discord.com/api/webhooks/123/fake-token';
 test('price embed identifies the currency, date and unofficial source without mentions', () => {
   const body = buildEmbed(quote);
   assert.match(body.embeds[0].description, /\$281,880.*in-game cash/);
-  assert.match(body.embeds[0].footer.text, /2026-10-14 UTC.*unofficial/);
+  assert.match(body.embeds[0].footer.text, /2026-10-14 UTC/);
+  assert.equal(body.embeds[0].fields.at(-1).value, '[WardogsHub (unofficial)](https://wardogshub.gg/gold-market/)');
   assert.deepEqual(body.allowed_mentions.parse, []);
 });
 test('requires Discord confirmation and sends the embed', async () => {
