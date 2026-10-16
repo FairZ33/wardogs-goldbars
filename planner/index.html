@@ -8,7 +8,8 @@
   <div id="notice" class="notice" role="status" hidden></div>
   <section class="workspace" aria-label="Savings planner">
     <form id="planner-form" class="panel"><p class="eyebrow">01 / YOUR GOAL</p><h2>What are you saving for?</h2>
-      <label for="goal">Cosmetic goal</label><select id="goal"><option value="30">Black &amp; Gold AK74 · 30 bars</option><option value="15">A 15-bar cosmetic</option><option value="10">A 10-bar cosmetic</option><option value="5">A 5-bar cosmetic</option><option value="custom">Custom bar goal</option></select>
+      <label for="goal">Cosmetic goal</label><select id="goal"><option value="30">A 30-bar cosmetic</option><option value="15">A 15-bar cosmetic</option><option value="10">A 10-bar cosmetic</option><option value="5">A 5-bar cosmetic</option><option value="custom">Custom bar goal</option></select>
+      <p class="hint">Season 2 removed the Black &amp; Gold AK from the Gold Market. Choose a bar target or enter the cost shown in game; the new cosmetic bar prices are not yet verified here.</p>
       <div id="custom-goal" hidden><label for="target">Target gold bars</label><input id="target" type="number" min="0" max="1000000" step="1" value="30"></div>
       <div class="pair"><div><label for="owned">Gold bars owned</label><input id="owned" type="number" min="0" max="1000000" step="1" value="0" required></div><div><label for="balance">Cash balance</label><input id="balance" type="number" min="0" max="1000000000000" step="1" value="3500000" required></div></div>
       <label for="reserve">Cash to keep for gameplay</label><input id="reserve" type="number" min="0" max="1000000000000" step="1" value="1000000" required><p class="hint">This amount stays out of your gold budget. Balances are entered by you; we don’t connect to your game account.</p>
@@ -19,6 +20,10 @@
       <dl><div><dt>Bars still needed</dt><dd id="remaining">—</dd></div><div><dt>Cost to finish at this rate</dt><dd id="cost">—</dd></div><div><dt>Cash after this purchase</dt><dd id="after">—</dd></div><div><dt>Additional cash needed</dt><dd id="shortfall">—</dd></div></dl>
       <div class="progress-label"><span>Gold already saved</span><span id="progress-label">—</span></div><progress id="progress" max="100" value="0"></progress><p class="hint">This is a budget calculation, not a prediction of tomorrow’s price. Gold exchanges are one-way and non-refundable.</p>
     </section>
+  </section>
+  <section class="notes" aria-label="Season 2 changes">
+    <div><p class="eyebrow">SEASON 2 / VERIFIED OCTOBER 16</p><h3>New cosmetics, manual bar targets.</h3><p>Season 2 adds Black &amp; Gold Little Bird; Chocolate Chip Evo-3 Ultra, M14 and TCX-SPR; Two-Tone Desert Galil, Mosin and Havoc; and Digital Wood M500. Their bar costs are not listed in the official notes. Use Custom bar goal after checking the in-game listing.</p></div>
+    <div><p class="eyebrow">MARKET ACCESS</p><h3>Account for the unlock separately.</h3><p>The official notes list the Gold Market unlock at WARDOG level 35 for $150,000. If you still need it, include that cash in your reserve; this calculator does not automatically deduct unlock costs. <a href="https://store.steampowered.com/news/app/1867240/view/670630562731396445" target="_blank" rel="noopener">Official Season 2 patch notes ↗</a></p></div>
   </section>
   <section class="notes"><div><p class="eyebrow">HOW TO USE THIS</p><h3>Buy for your goal.</h3><p>Choose the number of bars you need, keep a reserve, and compare the cost with your deadline. A low historical rate doesn’t guarantee a lower or higher price tomorrow.</p></div><div><p class="eyebrow">ABOUT THE DATA</p><h3>A daily quote, clearly dated.</h3><p>The rate comes from our daily tracker using <a href="https://wardogshub.gg/gold-market/">WardogsHub (unofficial)</a>. Stale quotes stop calculations until a new one is published. Cosmetic costs are reference presets; verify the listing in game.</p></div></section>
 </main><footer><span>WARDOGS GOLD SAVINGS PLANNER</span><span>Unofficial • Not affiliated with BULKHEAD or Team17</span></footer><script type="module" src="app.mjs"></script>
