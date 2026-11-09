@@ -1,6 +1,6 @@
 # wardogs-goldbars
 
-Daily WARDOGS gold exchange report, using WardogsHub (unofficial).
+Daily WARDOGS gold exchange report, using MetaForge (unofficial).
 
 ## Run locally
 
@@ -59,7 +59,9 @@ and do not prove in-game accuracy. Stale quotes fail before posting.
 Discord confirms sends with `wait=true`; uncertain sends are not retried.
 Manual reruns send new messages; no deduplication is implemented.
 
-Source and mechanics: https://wardogshub.gg/gold-market/
+Market page: https://metaforge.app/wardogs/market
+
+The tracker reads dated cash-per-bar quotes from the [MetaForge JSON feed](https://metaforge.app/api/wardogs/market). It rejects stale quotes and keeps any gaps in the source history visible.
 Schedule behavior: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
 
 ## Price alerts

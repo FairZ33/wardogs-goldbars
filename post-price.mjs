@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url';
-import { getPrice } from './get-price.mjs';
+import { getPrice, SOURCE_NAME } from './get-price.mjs';
 import { mkdir, writeFile, readFile, cp } from 'node:fs/promises';
 import { analyzeHistory, cash, percent } from './analyze-history.mjs';
 import { renderChart } from './chart.mjs';
@@ -25,7 +25,7 @@ export function buildEmbed(quote, analysis = analyzeHistory(quote), hasChart = f
         {name: `Exchange assessment: ${analysis.label}`, value: analysis.explanation, inline: false},
         {name: 'Before exchanging', value: 'Keep cash for gameplay and consider your cosmetic deadline. Exchanges are one-way and non-refundable.', inline: false},
         ...(plannerUrl ? [{name:'Plan your cosmetic', value:`[Open the savings planner](${plannerUrl})`, inline:false}] : []),
-        {name: 'Source', value: `[WardogsHub (unofficial)](${quote.source})`, inline: false},
+        {name: 'Source', value: `[${SOURCE_NAME}](${quote.source})`, inline: false},
       ],
       ...(hasChart ? {image: {url: 'attachment://history.png'}} : {}),
     }],
