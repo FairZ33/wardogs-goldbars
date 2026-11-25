@@ -2,7 +2,9 @@ name: Post WARDOGS gold price
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 1 * * *'
+    # 00:17 UTC daily: allow a short buffer after the reported midnight UTC price reset.
+    # GitHub may delay scheduled runs; the parser rejects quotes from a previous UTC date.
+    - cron: '17 0 * * *'
 permissions:
   contents: read
   actions: read
